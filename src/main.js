@@ -14,6 +14,7 @@ document.querySelector("#app").innerHTML = `
     <section id="movie-list-section"></section>
     <section id="movie-form-section"></section>
   </main>
+  <section id="data-tools-section"></section>
   <footer>
     <p>Local-first · P2P sync via WebRTC · Data stored in your browser</p>
   </footer>
@@ -27,6 +28,7 @@ async function start() {
     document.getElementById("movie-list-section"),
     document.getElementById("movie-form-section"),
     document.getElementById("status-bar"),
+    document.getElementById("data-tools-section"),
     ROOM_NAME
   );
 }
