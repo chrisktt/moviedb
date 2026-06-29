@@ -18,7 +18,7 @@ export function renderConnectionStatus(root, roomName) {
       label.textContent = `${count} peer${count > 1 ? "s" : ""} connected`;
     } else {
       dot.className = "status-dot offline";
-      label.textContent = "No peers — waiting";
+      label.textContent = "No peers — open on another device to sync";
     }
   }
 

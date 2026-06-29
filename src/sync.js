@@ -8,6 +8,14 @@ export function connect(roomName = "moviedb-default") {
 
   webrtcProvider = new WebrtcProvider(roomName, ydoc, {
     signaling: ["wss://signaling.yjs.dev"],
+    peerOpts: {
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+        ],
+      },
+    },
   });
 
   return webrtcProvider;
