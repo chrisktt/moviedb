@@ -1,20 +1,32 @@
 import { addMovie, updateMovie, getAllMovies } from "../db.js";
-import { renderMovieList } from "./movie-list.js";
 
 let formRoot;
 let editingId = null;
+let formVisible = false;
 
 export function renderMovieForm(root, listRoot) {
   formRoot = root;
+  formRoot.innerHTML = "";
+}
+
+export function showAddForm() {
+  editingId = null;
+  formVisible = true;
   render();
 }
 
 export function showEditForm(movie) {
   editingId = movie.id;
+  formVisible = true;
   render();
 }
 
 function render() {
+  if (!formVisible) {
+    formRoot.innerHTML = "";
+    return;
+  }
+
   const movie = editingId ? getAllMovies().find((m) => m.id === editingId) : null;
 
   formRoot.innerHTML = `
@@ -32,15 +44,18 @@ function render() {
       <textarea id="mf-notes" placeholder="Notes..." rows="2">${movie?.notes ? escAttr(movie.notes) : ""}</textarea>
       <div class="form-actions">
         <button type="submit" class="btn-primary">${movie ? "Update" : "Add Movie"}</button>
-        ${movie ? '<button type="button" id="mf-cancel" class="btn-secondary">Cancel</button>' : ""}
+        <button type="button" id="mf-cancel" class="btn-secondary">Cancel</button>
       </div>
     </form>
   `;
 
   const form = formRoot.querySelector("#movie-form");
   form.addEventListener("submit", handleSubmit);
-  const cancelBtn = formRoot.querySelector("#mf-cancel");
-  if (cancelBtn) cancelBtn.addEventListener("click", () => { editingId = null; render(); });
+  formRoot.querySelector("#mf-cancel").addEventListener("click", () => {
+    editingId = null;
+    formVisible = false;
+    render();
+  });
 }
 
 function handleSubmit(e) {
@@ -58,11 +73,12 @@ function handleSubmit(e) {
 
   if (editingId) {
     updateMovie(editingId, data);
-    editingId = null;
   } else {
     addMovie(data);
   }
 
+  editingId = null;
+  formVisible = false;
   render();
 }
 

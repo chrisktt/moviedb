@@ -206,6 +206,20 @@ header h1 {
   color: var(--accent);
 }
 
+/* Toolbar */
+#toolbar-section {
+  margin-bottom: 0.5rem;
+}
+
+.toolbar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toolbar .btn-primary {
+  flex: 1;
+}
+
 /* Form */
 .movie-form {
   background: var(--surface);

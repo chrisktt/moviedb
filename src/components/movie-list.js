@@ -3,16 +3,22 @@ import { showEditForm } from "./movie-form.js";
 
 let container;
 const expandedIds = new Set();
+let currentHideWatched = false;
 
-export function renderMovieList(root) {
+export function renderMovieList(root, hideWatched) {
   container = root;
+  currentHideWatched = hideWatched ?? false;
   container.innerHTML = '<div class="movie-list"></div>';
   const list = container.querySelector(".movie-list");
-  const movies = getAllMovies();
+  let movies = getAllMovies();
+
+  if (hideWatched) {
+    movies = movies.filter((m) => !m.watchedAt);
+  }
 
   if (movies.length === 0) {
     list.innerHTML =
-      '<p class="empty-state">No movies yet. Add one below.</p>';
+      `<p class="empty-state">${hideWatched ? "No unwatched movies." : "No movies yet."}</p>`;
     return;
   }
 
@@ -48,7 +54,7 @@ export function renderMovieList(root) {
       } else {
         expandedIds.add(id);
       }
-      renderMovieList(container);
+      renderMovieList(container, currentHideWatched);
     });
   });
 

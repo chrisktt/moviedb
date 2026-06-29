@@ -11,8 +11,9 @@ document.querySelector("#app").innerHTML = `
     <div id="status-bar"></div>
   </header>
   <main>
-    <section id="movie-list-section"></section>
+    <section id="toolbar-section"></section>
     <section id="movie-form-section"></section>
+    <section id="movie-list-section"></section>
   </main>
   <section id="data-tools-section"></section>
   <footer>
@@ -29,6 +30,7 @@ async function start() {
     document.getElementById("movie-form-section"),
     document.getElementById("status-bar"),
     document.getElementById("data-tools-section"),
+    document.getElementById("toolbar-section"),
     ROOM_NAME
   );
 }
