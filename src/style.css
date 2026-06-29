@@ -65,12 +65,22 @@ header h1 {
   display: inline-block;
 }
 
+.status-dot.connecting {
+  background: #666;
+  animation: pulse 1.5s infinite;
+}
+
+.status-dot.waiting {
+  background: #f0ad4e;
+}
+
 .status-dot.online {
   background: #4caf50;
 }
 
-.status-dot.offline {
-  background: #666;
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 .room-name code {

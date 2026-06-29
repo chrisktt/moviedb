@@ -3,11 +3,17 @@ import { ydoc } from "./db.js";
 
 let webrtcProvider = null;
 
+const SIGNALING_SERVERS = [
+  "wss://signaling.yjs.dev",
+  "wss://y-webrtc-signaling-eu.herokuapp.com",
+  "wss://y-webrtc-signaling-us.herokuapp.com",
+];
+
 export function connect(roomName = "moviedb-default") {
   if (webrtcProvider) return webrtcProvider;
 
   webrtcProvider = new WebrtcProvider(roomName, ydoc, {
-    signaling: ["wss://signaling.yjs.dev"],
+    signaling: SIGNALING_SERVERS,
     peerOpts: {
       config: {
         iceServers: [
@@ -41,6 +47,25 @@ export function onPeersChange(callback) {
   };
   webrtcProvider.awareness.on("change", handler);
   return () => webrtcProvider.awareness.off("change", handler);
+}
+
+export function getSignalingConnected() {
+  if (!webrtcProvider || !webrtcProvider.signalingConns) return false;
+  return webrtcProvider.signalingConns.some((c) => c.wsconnected);
+}
+
+export function onSignalingChange(callback) {
+  if (!webrtcProvider) return () => {};
+  const unsubs = webrtcProvider.signalingConns.map((conn) => {
+    const handler = () => callback(getSignalingConnected());
+    conn.on("connect", handler);
+    conn.on("disconnect", handler);
+    return () => {
+      conn.off("connect", handler);
+      conn.off("disconnect", handler);
+    };
+  });
+  return () => unsubs.forEach((u) => u());
 }
 
 export { webrtcProvider };
