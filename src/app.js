@@ -1,13 +1,10 @@
 import { onChange } from "./db.js";
 import { renderMovieList } from "./components/movie-list.js";
 import { renderMovieForm, showAddForm } from "./components/movie-form.js";
-import { renderConnectionStatus } from "./components/connection-status.js";
-import { renderDataTools } from "./components/data-tools.js";
+import { renderDataTools, runSync } from "./components/data-tools.js";
 import { renderToolbar } from "./components/toolbar.js";
 
-export function initApp(listRoot, formRoot, statusRoot, toolsRoot, toolbarRoot, roomName) {
-  const unsubStatus = renderConnectionStatus(statusRoot, roomName);
-
+export function initApp(listRoot, formRoot, toolsRoot, toolbarRoot) {
   let hideWatched = false;
 
   function refresh() {
@@ -21,6 +18,7 @@ export function initApp(listRoot, formRoot, statusRoot, toolsRoot, toolbarRoot, 
   renderDataTools(toolsRoot);
   renderToolbar(toolbarRoot, {
     onAddMovie: showAddForm,
+    onSync: runSync,
     onToggleWatched: (val) => {
       hideWatched = val;
       refresh();
@@ -28,8 +26,5 @@ export function initApp(listRoot, formRoot, statusRoot, toolsRoot, toolbarRoot, 
     initialHideWatched: false,
   });
 
-  return () => {
-    unsub();
-    unsubStatus();
-  };
+  return unsub;
 }

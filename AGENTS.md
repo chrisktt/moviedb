@@ -2,16 +2,16 @@
 
 ## Project Overview
 
-MovieDB is a local-first, offline-capable movie tracker implemented as a **Progressive Web App** (PWA). It uses **Yjs CRDT** for data modeling and **WebRTC (y-webrtc)** for peer-to-peer sync between devices — no backend server required. Data is persisted to IndexedDB via `y-indexeddb`.
+MovieDB is a local-first, offline-capable movie tracker implemented as a **Progressive Web App** (PWA). It uses **Yjs CRDT** for data modeling with IndexedDB persistence via `y-indexeddb`. Sync between devices is done via a **shared JSON file** — export to a synced folder (OneDrive, Dropbox, iCloud), swap to another device, import and merge.
 
-**Tech stack:** Vanilla JavaScript (ESM), Vite, Yjs, y-webrtc, y-indexeddb, vite-plugin-pwa (workbox).
+**Tech stack:** Vanilla JavaScript (ESM), Vite, Yjs, y-indexeddb, vite-plugin-pwa (workbox).
 
 ---
 
 ## Commands
 
 ```bash
-pnpm dev          # Start Vite dev server with HMR (http://localhost:5173)
+pnpm dev          # Start Vite dev server with HMR (http://localhost:8080)
 pnpm build        # Production build → dist/
 pnpm preview      # Preview production build locally
 ```
@@ -43,8 +43,7 @@ There is currently **no test framework, no linter, and no type checker** configu
 src/
   main.js          # Entry point — DOM shell creation, boot sequence
   app.js           # Application wiring — connects data layer to UI
-  db.js            # Yjs Y.Doc, Y.Map, CRUD operations, IndexedDB persistence
-  sync.js          # WebRTC P2P provider, connection lifecycle
+  db.js            # Yjs Y.Doc, Y.Map, CRUD operations, IndexedDB persistence, mergeMovies
   style.css        # All styles (dark theme, CSS custom properties)
   components/      # UI components — one file per component
 ```
@@ -53,7 +52,7 @@ src/
 
 - **Files:** kebab-case (`movie-list.js`, `connection-status.js`).
 - **Functions:** camelCase (`getAllMovies`, `renderMovieList`, `escAttr`).
-- **Exported functions:** camelCase verbs (`addMovie`, `updateMovie`, `deleteMovie`, `connect`, `disconnect`).
+- **Exported functions:** camelCase verbs (`addMovie`, `updateMovie`, `deleteMovie`, `mergeMovies`).
 - **Global state variables:** camelCase in module scope (`formRoot`, `editingId`, `webrtcProvider`).
 - **DOM element IDs:** kebab-case (`movie-list-section`, `mf-title`, `cs-dot`).
 - **CSS classes:** kebab-case, BEM-lite (`movie-card`, `movie-info`, `.status-dot.online`, `.btn-primary`).
@@ -98,16 +97,17 @@ Key conventions:
     updatedAt: number       // Date.now() — set on every mutation
   }
   ```
-- CRUD functions return the new/updated object (with `id` attached) or `undefined` on failure.
+- `mergeMovies(imported)` — merges an array of movie objects into the local store. Per-movie last-write-wins using `updatedAt`: newer versions replace older, new movies are added, local movies not in the import are untouched. Wrapped in `ydoc.transact()` for a single observer notification. Returns `{ added, merged }`.
+
 - `onChange(callback)` observes the Y.Map and passes the full sorted movie array to the callback. Returns an unsubscribe function.
 - `whenReady()` resolves when IndexedDB persistence has loaded. **Must be awaited before reading data.**
 
-### Sync Layer (`sync.js`)
+### File Sync (`components/data-tools.js`, `components/toolbar.js`)
 
-- `connect(roomName)` is idempotent — returns existing provider if already connected.
-- Signaling uses `wss://signaling.yjs.dev` (public relay, no data passes through it).
-- `getPeers()` returns the awareness state count (includes self, so 1 = no peers).
-- Event cleanups use the `() => {}` no-op pattern for edge cases where the provider is null.
+- The **Sync** button in the toolbar triggers a file picker. User selects `moviedb.json` from a shared folder (OneDrive, Dropbox, iCloud). The app reads the file, calls `mergeMovies()`, then auto-downloads the merged result back. User replaces the old file in the shared folder with the download.
+- **Export** downloads all movies as `moviedb-YYYY-MM-DD.json`.
+- **Import** reads a file and merges with a simple alert summary.
+- Merge strategy: per-movie last-write-wins by `updatedAt` timestamp. No data loss — both sides' unique movies are preserved.
 
 ### DOM & HTML
 
@@ -140,6 +140,5 @@ Key conventions:
 
 - **No test infrastructure yet.** When adding tests, create `vitest.config.js` and add `"test": "vitest"` to scripts.
 - **No linting.** Do not add comments unless truly necessary — keep the codebase comment-free.
-- The `y-webrtc` signaling server is a **public** service. For production, run your own signaling server or switch to y-websocket.
-- Both devices must be online simultaneously for P2P sync to occur. There is no relay server holding data.
 - Movie data is stored as JSON strings inside Yjs. For large datasets (1000+ movies), evaluate switching to `Y.Array` with subdocuments for better incremental sync performance.
+- File-based sync uses last-write-wins merge by `updatedAt`. Concurrent edits to the same movie from two devices between syncs will resolve to whichever has the higher `updatedAt`.

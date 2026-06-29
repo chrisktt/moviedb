@@ -59,6 +59,32 @@ export function whenReady() {
   });
 }
 
+export function mergeMovies(imported) {
+  const localById = new Map();
+  movieMap.forEach((value, id) => {
+    localById.set(id, JSON.parse(value));
+  });
+
+  let added = 0;
+  let merged = 0;
+
+  ydoc.transact(() => {
+    for (const imp of imported) {
+      if (!imp.id || !imp.title) continue;
+      const existing = localById.get(imp.id);
+      if (!existing) {
+        movieMap.set(imp.id, JSON.stringify(imp));
+        added++;
+      } else if ((imp.updatedAt || 0) > (existing.updatedAt || 0)) {
+        movieMap.set(imp.id, JSON.stringify(imp));
+        merged++;
+      }
+    }
+  });
+
+  return { added, merged };
+}
+
 export function destroy() {
   indexeddbProvider.destroy();
   ydoc.destroy();
