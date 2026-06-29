@@ -2,6 +2,7 @@ import { getAllMovies, deleteMovie, updateMovie } from "../db.js";
 import { showEditForm } from "./movie-form.js";
 
 let container;
+const expandedIds = new Set();
 
 export function renderMovieList(root) {
   container = root;
@@ -18,21 +19,38 @@ export function renderMovieList(root) {
   list.innerHTML = movies
     .map(
       (m) => `
-    <div class="movie-card" data-id="${m.id}">
-      <div class="movie-info">
-        <h3>${esc(m.title)}${m.year ? ` <span class="year">(${m.year})</span>` : ""}</h3>
-        ${m.director ? `<p class="director">${esc(m.director)}</p>` : ""}
-        <span class="status status-${m.status || "none"}">${statusLabel(m.status)}</span>
-        ${m.rating ? `<span class="rating">★ ${m.rating}/10</span>` : ""}
-        ${m.notes ? `<p class="notes">${esc(m.notes)}</p>` : ""}
+    <div class="movie-card${expandedIds.has(m.id) ? " expanded" : ""}" data-id="${m.id}">
+      <div class="movie-row">
+        <span class="mc-title">${esc(m.title)}${m.year ? ` <span class="mc-year">(${m.year})</span>` : ""}</span>
+        <span class="mc-watched">${m.watchedAt ? "📅" : ""}</span>
+        <button class="chevron">${expandedIds.has(m.id) ? "▲" : "▼"}</button>
       </div>
-      <div class="movie-actions">
-        <button class="btn-icon edit-btn" data-id="${m.id}" title="Edit">✎</button>
-        <button class="btn-icon del-btn" data-id="${m.id}" title="Delete">✕</button>
+      <div class="movie-detail">
+        ${m.director ? `<p class="director">${esc(m.director)}</p>` : ""}
+        ${m.notes ? `<p class="notes">${esc(m.notes)}</p>` : ""}
+        ${m.rating ? `<p class="movie-rating">★ ${m.rating}/10</p>` : ""}
+        ${m.watchedAt ? `<p class="watched-date">Watched ${m.watchedAt}</p>` : ""}
+        <div class="movie-actions">
+          <button class="btn-icon edit-btn" data-id="${m.id}" title="Edit">✎</button>
+          <button class="btn-icon del-btn" data-id="${m.id}" title="Delete">✕</button>
+        </div>
       </div>
     </div>`
     )
     .join("");
+
+  list.querySelectorAll(".chevron").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const card = btn.closest(".movie-card");
+      const id = card.dataset.id;
+      if (expandedIds.has(id)) {
+        expandedIds.delete(id);
+      } else {
+        expandedIds.add(id);
+      }
+      renderMovieList(container);
+    });
+  });
 
   list.querySelectorAll(".edit-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -45,15 +63,11 @@ export function renderMovieList(root) {
   list.querySelectorAll(".del-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       if (confirm("Delete this movie?")) {
+        expandedIds.delete(btn.dataset.id);
         deleteMovie(btn.dataset.id);
       }
     });
   });
-}
-
-function statusLabel(s) {
-  const map = { watchlist: "📋 Watchlist", watching: "👀 Watching", watched: "✅ Watched" };
-  return map[s] || "Uncategorized";
 }
 
 function esc(str) {

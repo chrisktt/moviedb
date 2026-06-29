@@ -26,12 +26,7 @@ function render() {
       </div>
       <input type="text" id="mf-director" placeholder="Director" value="${movie?.director ? escAttr(movie.director) : ""}">
       <div class="form-row">
-        <select id="mf-status">
-          <option value="">Set status...</option>
-          <option value="watchlist" ${movie?.status === "watchlist" ? "selected" : ""}>Watchlist</option>
-          <option value="watching" ${movie?.status === "watching" ? "selected" : ""}>Watching</option>
-          <option value="watched" ${movie?.status === "watched" ? "selected" : ""}>Watched</option>
-        </select>
+        <input type="date" id="mf-watched-at" value="${movie?.watchedAt ?? ""}">
         <input type="number" id="mf-rating" placeholder="Rating (1-10)" min="1" max="10" value="${movie?.rating ?? ""}">
       </div>
       <textarea id="mf-notes" placeholder="Notes..." rows="2">${movie?.notes ? escAttr(movie.notes) : ""}</textarea>
@@ -54,7 +49,7 @@ function handleSubmit(e) {
     title: document.getElementById("mf-title").value.trim(),
     year: document.getElementById("mf-year").value ? Number(document.getElementById("mf-year").value) : undefined,
     director: document.getElementById("mf-director").value.trim() || undefined,
-    status: document.getElementById("mf-status").value || undefined,
+    watchedAt: document.getElementById("mf-watched-at").value || undefined,
     rating: document.getElementById("mf-rating").value ? Number(document.getElementById("mf-rating").value) : undefined,
     notes: document.getElementById("mf-notes").value.trim() || undefined,
   };

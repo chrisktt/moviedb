@@ -91,7 +91,7 @@ Key conventions:
     title: string,          // required
     year?: number,          // 1888–2100
     director?: string,
-    status?: "watchlist" | "watching" | "watched",
+    watchedAt?: string,     // ISO date string ("2026-06-28") — presence = watched
     rating?: number,        // 1–10
     notes?: string,
     addedAt: number,        // Date.now() — set once on creation

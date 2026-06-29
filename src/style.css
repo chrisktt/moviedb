@@ -96,74 +96,105 @@ header h1 {
 .movie-card {
   background: var(--surface);
   border-radius: var(--radius);
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.75rem;
+  overflow: hidden;
 }
 
-.movie-info {
+.movie-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.movie-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.mc-title {
   flex: 1;
   min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.movie-info h3 {
-  font-size: 1.05rem;
-  margin-bottom: 0.25rem;
-}
-
-.movie-info h3 .year {
+.mc-title .mc-year {
   color: var(--text-muted);
   font-weight: 400;
 }
 
-.movie-info .director {
+.mc-watched {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.chevron {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.chevron:hover {
+  color: var(--text);
+}
+
+.movie-detail {
+  display: none;
+  padding: 0 1rem 0.75rem 1rem;
+  border-top: 1px solid var(--surface2);
+}
+
+.movie-card.expanded .movie-detail {
+  display: block;
+}
+
+.director {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
-.status {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: var(--surface2);
-  margin-right: 0.5rem;
-}
-
-.status-watchlist { background: #37474f; }
-.status-watching { background: #1565c0; }
-.status-watched   { background: #2e7d32; }
-
-.rating {
+.movie-rating {
   font-size: 0.85rem;
   color: #ffc107;
+  margin-bottom: 0.25rem;
+}
+
+.watched-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
 }
 
 .notes {
   font-size: 0.8rem;
   color: var(--text-muted);
-  margin-top: 0.35rem;
+  margin-bottom: 0.5rem;
   white-space: pre-wrap;
 }
 
 .movie-actions {
   display: flex;
   gap: 0.25rem;
-  flex-shrink: 0;
 }
 
 .btn-icon {
   background: none;
-  border: none;
+  border: 1px solid var(--surface2);
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 1.1rem;
-  padding: 4px 8px;
+  font-size: 0.85rem;
+  padding: 4px 12px;
   border-radius: 4px;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
 .btn-icon:hover {

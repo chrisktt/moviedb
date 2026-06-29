@@ -46,7 +46,7 @@ export function renderDataTools(root) {
             title: item.title,
             year: item.year,
             director: item.director,
-            status: item.status,
+            watchedAt: item.watchedAt,
             rating: item.rating,
             notes: item.notes,
           });
